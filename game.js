@@ -33,7 +33,7 @@ function performHeroAttack(hero) {
   monsterHealth[randomMonster] -= damage;
   logAttack(hero, randomMonster, damage);
 
-}
+} 
 
 // Function to simulate the boss's attack
 function performBossAttack() {
@@ -47,7 +47,7 @@ function performBossAttack() {
 // Function to log an attack
 function logAttack(attacker, target, damage) {
   const outputDiv = document.getElementById("output-div");
-  outputDiv.innerHTML += `<p>${attacker} attacks ${target} and deals ${damage} damage.</p>`;
+  outputDiv.innerHTML += `<p>${attacker} attacks ${target} and loses ${damage} HP.</p>`;
 }
 
 // Function to get a random monster
@@ -109,27 +109,82 @@ function removeAppearingMonster() {
 // Modify the performHeroAttack function to account for hero-specific attacks
 function performHeroAttack(hero) {
   if (isAppearingMonster) {
-    // The three heroes can only attack Slime or Bat during their appearance
     const appearingMonster = document.getElementById("appearing-monster").alt;
+  
     if (
-      (hero === HEROES.KNIGHT && appearingMonster === "Big Boss") ||
-      (hero === HEROES.ARCHER && appearingMonster === "Bat") ||
-      (hero === HEROES.CAT && appearingMonster === "Slime")
+      (hero === HEROES.KNIGHT && appearingMonster === MONSTERS.BOSS) ||
+      (hero === HEROES.ARCHER && appearingMonster === MONSTERS.BAT) ||
+      (hero === HEROES.CAT && appearingMonster === MONSTERS.SLIME)
     ) {
       const damage = Math.floor(Math.random() * 21);
       monsterHealth[appearingMonster] -= damage;
+      
+      // Calculate the damage percentage
+      const damagePercentage = (damage / 50) * 100;
+
+      // Get the hero and monster life bar elements
+      const heroLifeBar = document.getElementById(`${hero.toLowerCase()}-hp-div`);
+      const monsterLifeBar = document.getElementById(`${appearingMonster.toLowerCase()}-hp-div`);
+
+      // Calculate the new width for the life bars
+      const heroWidth = parseFloat(heroLifeBar.style.width || "100");
+      const monsterWidth = parseFloat(monsterLifeBar.style.width || "100");
+
+      const newHeroWidth = heroWidth - damagePercentage;
+      const newMonsterWidth = monsterWidth - damagePercentage;
+
+      // Apply the "attack" class and set the new width
+      heroLifeBar.style.width = `${newHeroWidth}%`;
+      heroLifeBar.classList.add("attack");
+
+      monsterLifeBar.style.width = `${newMonsterWidth}%`;
+      monsterLifeBar.classList.add("attack");
+
       logAttack(hero, appearingMonster, damage);
+
+      setTimeout(() => {
+        // Remove the "attack" class after a short delay
+        heroLifeBar.classList.remove("attack");
+        monsterLifeBar.classList.remove("attack");
+      }, 500); // Remove the "attack" class after 0.5 seconds
     } else {
       logAttack(hero, appearingMonster, "has no effect!");
     }
   } else if (isBigBossTransformed && hero !== HEROES.KNIGHT) {
-    // Big Boss takes 10% less damage when transformed
+    // Calculate the damage percentage (Big Boss takes 10% less damage when transformed)
     const damage = Math.floor(Math.random() * 21) * 0.9;
     monsterHealth[MONSTERS.BOSS] -= damage;
+    const damagePercentage = (damage / 50) * 100;
+
+    // Get the hero and boss life bar elements
+    const heroLifeBar = document.getElementById(`${hero.toLowerCase()}-hp-div`);
+    const bossLifeBar = document.getElementById("big-boss-hp-div");
+
+    // Calculate the new width for the life bars
+    const heroWidth = parseFloat(heroLifeBar.style.width || "100");
+    const bossWidth = parseFloat(bossLifeBar.style.width || "100");
+
+    const newHeroWidth = heroWidth - damagePercentage;
+    const newBossWidth = bossWidth - damagePercentage;
+
+    // Apply the "attack" class and set the new width
+    heroLifeBar.style.width = `${newHeroWidth}%`;
+    heroLifeBar.classList.add("attack");
+
+    bossLifeBar.style.width = `${newBossWidth}%`;
+    bossLifeBar.classList.add("attack");
+
     logAttack(hero, MONSTERS.BOSS, damage);
+
+    setTimeout(() => {
+      // Remove the "attack" class after a short delay
+      heroLifeBar.classList.remove("attack");
+      bossLifeBar.classList.remove("attack");
+    }, 500); // Remove the "attack" class after 0.5 seconds
   } else {
     const randomMonster = getRandomMonster();
     const damage = Math.floor(Math.random() * 21);
+
     if (
       (hero === HEROES.KNIGHT && randomMonster === MONSTERS.BOSS) ||
       (hero === HEROES.ARCHER && randomMonster === MONSTERS.BAT) ||
@@ -137,14 +192,42 @@ function performHeroAttack(hero) {
     ) {
       // Hero-specific attacks
       monsterHealth[randomMonster] -= damage;
+
+      // Calculate the damage percentage
+      const damagePercentage = (damage / 50) * 100;
+
+      // Get the hero and monster life bar elements
+      const heroLifeBar = document.getElementById(`${hero.toLowerCase()}-hp-div`);
+      const monsterLifeBar = document.getElementById(`${randomMonster.toLowerCase()}-hp-div`);
+
+      // Calculate the new width for the life bars
+      const heroWidth = parseFloat(heroLifeBar.style.width || "100");
+      const monsterWidth = parseFloat(monsterLifeBar.style.width || "100");
+
+      const newHeroWidth = heroWidth - damagePercentage;
+      const newMonsterWidth = monsterWidth - damagePercentage;
+
+      // Apply the "attack" class and set the new width
+      heroLifeBar.style.width = `${newHeroWidth}%`;
+      heroLifeBar.classList.add("attack");
+
+      monsterLifeBar.style.width = `${newMonsterWidth}%`;
+      monsterLifeBar.classList.add("attack");
+
       logAttack(hero, randomMonster, damage);
+
+      setTimeout(() => {
+        // Remove the "attack" class after a short delay
+        heroLifeBar.classList.remove("attack");
+        monsterLifeBar.classList.remove("attack");
+      }, 500); // Remove the "attack" class after 0.5 seconds
+
     } else {
       logAttack(hero, randomMonster, "has no effect!");
     }
 
     handleAppearingMonster(); // Handle appearance after hero's attack
   }
-
   // Check for victory or loss
   checkGameStatus();
 }
@@ -168,24 +251,6 @@ function performHeroAttack(hero) {
       heroHealth[randomHero] = 100; // Ensure health doesn't exceed 100
     }
     logAttack(HEROES.HEALER, randomHero, `healed ${randomHero} for ${healAmount} HP.`);
-  }
-  
-  // Function to check for victory or loss
-  function checkGameStatus() {
-    if (monsterHealth[MONSTERS.BOSS] <= 0) {
-      document.getElementById("output-div").innerHTML += "<p>You Won!</p>";
-    } else {
-      let isAnyHeroAlive = false;
-      for (const hero in heroHealth) {
-        if (heroHealth[hero] > 0) {
-          isAnyHeroAlive = true;
-          break;
-        }
-      }
-      if (!isAnyHeroAlive) {
-        document.getElementById("output-div").innerHTML += "<p>You Lost!</p>";
-      }
-    }
   }
   
   // Event listeners for hero attacks
@@ -266,7 +331,4 @@ function transformBigBoss() {
   
   // Event listener to introduce a delay in Big Boss and baddies' attacks
   setInterval(delayedBossAttack, 2000); // Introduce delay every 2 seconds
-  
-  
-  
   
