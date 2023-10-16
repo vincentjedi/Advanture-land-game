@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="eng">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdventureLand - Final Boss Battle</title>
+    <!-- Du trenger ikke gjøre noe med CSS-koden! -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <div id="container">     
+
+        <!--
+            Life bars 
+            - For å endre på life bar må dere få tak i div etter id, for eksempel "nameless-knight-hp-div".                       
+        -->
+        <div class="life-bar-container knight-container">     
+            <img src="knight-head.png">
+            <div class="life-bar" id="nameless-knight-hp-div"></div><!-- hp (Health Points) til ridderen -->
+        </div>
+
+        <div class="life-bar-container julia-container">
+            <img src="julia-head.png">
+            <div class="life-bar" id="julia-the-archer-hp-div"></div><!-- hp (Health Points) til Julia -->
+        </div>
+
+        <div class="life-bar-container cat-container">
+            <img src="cat-head.png" alt="">
+            <div class="life-bar" id="the-cat-hp-div"></div><!-- hp (Health Points) til katten -->
+        </div>
+
+        <div class="life-bar-container big-boss-container">
+            <img src="big-boss-head.png" alt="">
+            <div class="life-bar" id="big-boss-hp-div"></div><!-- hp (Health Points) til Big boss -->
+        </div>
+
+
+        <!-- The knight -->
+        <img id="nameless-knight" src="knight.png" alt="">
+       
+        <!-- Julia the archer -->
+        <img id="julia-the-archer" src="julia-the-archer.png">
+
+        <!-- The Cat -->
+        <img id="the-cat" src="cat.png" alt="">
+
+        <!-- William the healer -->
+        <img id="william-the-healer" src="healer.png">
+
+        <!-- Jack the lumberjack -->
+        <img id="jack-the-lumberjack" src="lumberjack.png" alt="">
+
+        <!-- The big evil boss -->
+        <img id="big-boss" src="big-boss.png" alt="">
+
+        <!-- Noen ganger dukker et monster opp her -->
+            <img id="appearing-monster" src="" alt=" ">
+            
+            
+        
+        
+
+
+    </div><!-- end container-->
+
+
+    <!-- Her skrives det ut informasjon om hva brukeren gjør og hva som skjer. -->
+    <div id="output-div">
+        <p>Her skal det skrives ut hva som skjer underveis i spillet. </p>
+    </div>
+
+
+    
+    <script src="game.js"></script>
+</body>
+</html>
