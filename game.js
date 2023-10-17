@@ -1,334 +1,274 @@
-// Constants for hero and monster types
-const HEROES = {
-  KNIGHT: "Nameless Knight",
-  CAT: "The Cat",
-  ARCHER: "Julia the Archer",
-  HEALER: "William the Healer",
-  LUMBERJACK: "Jack the Lumberjack"
-};
+// Get references to the characters and monsters
+const heroes = [document.getElementById("nameless-knight"), document.getElementById("the-cat"), document.getElementById("julia-the-archer")];
+const namelessKnightHPDiv = document.getElementById("nameless-knight-hp-div");
+const theCatHPDiv = document.getElementById("the-cat-hp-div");
+const juliaTheArcherHPDiv = document.getElementById("julia-the-archer-hp-div");
+const bigBossHPDiv = document.getElementById("big-boss-hp-div");
+const appearingMonster = document.getElementById("appearing-monster");
+const williamTheHealer = document.getElementById("william-the-healer");
+const jackTheLumberjack = document.getElementById("jack-the-lumberjack");
 
-const MONSTERS = {
-  BOSS: "Big Boss",
-  SLIME: "Slime",
-  BAT: "Bat"
-};
+// Initialize HP values
+let namelessKnightHP = 100;
+let theCatHP = 100;
+let juliaTheArcherHP = 100;
+let bigBossHP = 100;
+let appearingMonsterHP = 50;
+let isSlimeOrBatPresent = false;
+let juliaArrows = 10; // Julia's initial number of arrows
 
-// Initialize hero and monster health points
-const heroHealth = {
-  [HEROES.KNIGHT]: 100,
-  [HEROES.CAT]: 100,
-  [HEROES.ARCHER]: 100
-};
+// Update life bars
+updateLifeBars();
 
-const monsterHealth = {
-  [MONSTERS.BOSS]: 200,
-  [MONSTERS.SLIME]: 50,
-  [MONSTERS.BAT]: 50
-};
-
-// Function to simulate an attack
-function performHeroAttack(hero) {
-  const randomMonster = getRandomMonster();
-  const damage = Math.floor(Math.random() * 21); // Random damage between 0 and 20
-  monsterHealth[randomMonster] -= damage;
-  logAttack(hero, randomMonster, damage);
-
-} 
-
-// Function to simulate the boss's attack
-function performBossAttack() {
-  const heroes = Object.keys(heroHealth);
-  const randomHero = heroes[Math.floor(Math.random() * heroes.length)];
-  const damage = Math.floor(Math.random() * 21); // Random damage between 0 and 20
-  heroHealth[randomHero] -= damage;
-  logAttack(MONSTERS.BOSS, randomHero, damage);
-}
-
-// Function to log an attack
-function logAttack(attacker, target, damage) {
-  const outputDiv = document.getElementById("output-div");
-  outputDiv.innerHTML += `<p>${attacker} attacks ${target} and loses ${damage} HP.</p>`;
-}
-
-// Function to get a random monster
-function getRandomMonster() {
-  const monsters = [MONSTERS.BOSS, MONSTERS.SLIME, MONSTERS.BAT];
-  return monsters[Math.floor(Math.random() * monsters.length)];
-}
-
-  
-  // Julia the Archer's arrows count
-  let juliaArrows = 5;
-  
-  // Big Boss transformation flag
-  let isBigBossTransformed = false;
-  
-  // Flag to indicate if Slime or Bat has appeared
-let isAppearingMonster = false;
-
-// Function to handle the appearance of Slime or Bat
-function handleAppearingMonster() {
-  if (!isAppearingMonster && Math.random() <= 0.25) {
-    const appearingMonster = getRandomMonster();
-
-    if (appearingMonster === MONSTERS.SLIME) {
-      document.getElementById("appearing-monster").src = "slime.png";
-      document.getElementById("appearing-monster").alt = "Slime";
-    } else if (appearingMonster === MONSTERS.BAT) {
-      document.getElementById("appearing-monster").src = "bat.png";
-      document.getElementById("appearing-monster").alt = "Bat";
-    }
-
-    isAppearingMonster = true;
-    logAttack(appearingMonster, "appears!");
-
-    // The three heroes can only attack Slime or Bat while it's there
-    namelessKnight.removeEventListener("click", performHeroAttack);
-    theCat.removeEventListener("click", performHeroAttack);
-    juliaTheArcher.removeEventListener("click", performHeroAttack);
-
-    // Remove boss attack during Slime or Bat appearance
-    bossAttackInterval && clearInterval(bossAttackInterval);
-  }
-}
-
-// Function to remove Slime or Bat
-function removeAppearingMonster() {
-  isAppearingMonster = false;
-  document.getElementById("appearing-monster").style.display = "none";
-
-  // Re-enable hero attacks
-  namelessKnight.addEventListener("click", () => performHeroAttack(HEROES.KNIGHT));
-  theCat.addEventListener("click", () => performHeroAttack(HEROES.CAT));
-  juliaTheArcher.addEventListener("click", () => performHeroAttack(HEROES.ARCHER));
-
-  // Re-enable boss attack
-  bossAttackInterval = setInterval(performBossAttack, 2000);
-}
-
-// Modify the performHeroAttack function to account for hero-specific attacks
-function performHeroAttack(hero) {
-  if (isAppearingMonster) {
-    const appearingMonster = document.getElementById("appearing-monster").alt;
-  
-    if (
-      (hero === HEROES.KNIGHT && appearingMonster === MONSTERS.BOSS) ||
-      (hero === HEROES.ARCHER && appearingMonster === MONSTERS.BAT) ||
-      (hero === HEROES.CAT && appearingMonster === MONSTERS.SLIME)
-    ) {
-      const damage = Math.floor(Math.random() * 21);
-      monsterHealth[appearingMonster] -= damage;
-      
-      // Calculate the damage percentage
-      const damagePercentage = (damage / 50) * 100;
-
-      // Get the hero and monster life bar elements
-      const heroLifeBar = document.getElementById(`${hero.toLowerCase()}-hp-div`);
-      const monsterLifeBar = document.getElementById(`${appearingMonster.toLowerCase()}-hp-div`);
-
-      // Calculate the new width for the life bars
-      const heroWidth = parseFloat(heroLifeBar.style.width || "100");
-      const monsterWidth = parseFloat(monsterLifeBar.style.width || "100");
-
-      const newHeroWidth = heroWidth - damagePercentage;
-      const newMonsterWidth = monsterWidth - damagePercentage;
-
-      // Apply the "attack" class and set the new width
-      heroLifeBar.style.width = `${newHeroWidth}%`;
-      heroLifeBar.classList.add("attack");
-
-      monsterLifeBar.style.width = `${newMonsterWidth}%`;
-      monsterLifeBar.classList.add("attack");
-
-      logAttack(hero, appearingMonster, damage);
-
-      setTimeout(() => {
-        // Remove the "attack" class after a short delay
-        heroLifeBar.classList.remove("attack");
-        monsterLifeBar.classList.remove("attack");
-      }, 500); // Remove the "attack" class after 0.5 seconds
-    } else {
-      logAttack(hero, appearingMonster, "has no effect!");
-    }
-  } else if (isBigBossTransformed && hero !== HEROES.KNIGHT) {
-    // Calculate the damage percentage (Big Boss takes 10% less damage when transformed)
-    const damage = Math.floor(Math.random() * 21) * 0.9;
-    monsterHealth[MONSTERS.BOSS] -= damage;
-    const damagePercentage = (damage / 50) * 100;
-
-    // Get the hero and boss life bar elements
-    const heroLifeBar = document.getElementById(`${hero.toLowerCase()}-hp-div`);
-    const bossLifeBar = document.getElementById("big-boss-hp-div");
-
-    // Calculate the new width for the life bars
-    const heroWidth = parseFloat(heroLifeBar.style.width || "100");
-    const bossWidth = parseFloat(bossLifeBar.style.width || "100");
-
-    const newHeroWidth = heroWidth - damagePercentage;
-    const newBossWidth = bossWidth - damagePercentage;
-
-    // Apply the "attack" class and set the new width
-    heroLifeBar.style.width = `${newHeroWidth}%`;
-    heroLifeBar.classList.add("attack");
-
-    bossLifeBar.style.width = `${newBossWidth}%`;
-    bossLifeBar.classList.add("attack");
-
-    logAttack(hero, MONSTERS.BOSS, damage);
-
-    setTimeout(() => {
-      // Remove the "attack" class after a short delay
-      heroLifeBar.classList.remove("attack");
-      bossLifeBar.classList.remove("attack");
-    }, 500); // Remove the "attack" class after 0.5 seconds
-  } else {
-    const randomMonster = getRandomMonster();
-    const damage = Math.floor(Math.random() * 21);
-
-    if (
-      (hero === HEROES.KNIGHT && randomMonster === MONSTERS.BOSS) ||
-      (hero === HEROES.ARCHER && randomMonster === MONSTERS.BAT) ||
-      (hero === HEROES.CAT && randomMonster === MONSTERS.SLIME)
-    ) {
-      // Hero-specific attacks
-      monsterHealth[randomMonster] -= damage;
-
-      // Calculate the damage percentage
-      const damagePercentage = (damage / 50) * 100;
-
-      // Get the hero and monster life bar elements
-      const heroLifeBar = document.getElementById(`${hero.toLowerCase()}-hp-div`);
-      const monsterLifeBar = document.getElementById(`${randomMonster.toLowerCase()}-hp-div`);
-
-      // Calculate the new width for the life bars
-      const heroWidth = parseFloat(heroLifeBar.style.width || "100");
-      const monsterWidth = parseFloat(monsterLifeBar.style.width || "100");
-
-      const newHeroWidth = heroWidth - damagePercentage;
-      const newMonsterWidth = monsterWidth - damagePercentage;
-
-      // Apply the "attack" class and set the new width
-      heroLifeBar.style.width = `${newHeroWidth}%`;
-      heroLifeBar.classList.add("attack");
-
-      monsterLifeBar.style.width = `${newMonsterWidth}%`;
-      monsterLifeBar.classList.add("attack");
-
-      logAttack(hero, randomMonster, damage);
-
-      setTimeout(() => {
-        // Remove the "attack" class after a short delay
-        heroLifeBar.classList.remove("attack");
-        monsterLifeBar.classList.remove("attack");
-      }, 500); // Remove the "attack" class after 0.5 seconds
-
-    } else {
-      logAttack(hero, randomMonster, "has no effect!");
-    }
-
-    handleAppearingMonster(); // Handle appearance after hero's attack
-  }
-  // Check for victory or loss
-  checkGameStatus();
-}
-
-  
-  // Function to handle Julia the Archer's arrow crafting
-  function craftArrows() {
-    if (juliaArrows < 5) {
-      juliaArrows++;
-      logAttack(HEROES.LUMBERJACK, HEROES.ARCHER, "crafted an arrow.");
-    }
-  }
-  
-  // Function to handle William the Healer's healing
-  function performHealing() {
-    const heroes = Object.keys(heroHealth);
-    const randomHero = heroes[Math.floor(Math.random() * heroes.length)];
-    const healAmount = Math.floor(Math.random() * 21);
-    heroHealth[randomHero] += healAmount;
-    if (heroHealth[randomHero] > 100) {
-      heroHealth[randomHero] = 100; // Ensure health doesn't exceed 100
-    }
-    logAttack(HEROES.HEALER, randomHero, `healed ${randomHero} for ${healAmount} HP.`);
-  }
-  
-  // Event listeners for hero attacks
-  const namelessKnight = document.getElementById("nameless-knight");
-  namelessKnight.addEventListener("click", () => performHeroAttack(HEROES.KNIGHT));
-  
-  const theCat = document.getElementById("the-cat");
-  theCat.addEventListener("click", () => performHeroAttack(HEROES.CAT));
-  
-  const juliaTheArcher = document.getElementById("julia-the-archer");
-  juliaTheArcher.addEventListener("click", () => {
-    if (juliaArrows > 0) {
-      juliaArrows--;
-      performHeroAttack(HEROES.ARCHER);
-    } else {
-      logAttack(HEROES.ARCHER, "No arrows left!");
-    }
-  });
-  
-  const williamTheHealer = document.getElementById("william-the-healer");
-  williamTheHealer.addEventListener("click", performHealing);
-  
-  const jackTheLumberjack = document.getElementById("jack-the-lumberjack");
-  jackTheLumberjack.addEventListener("click", craftArrows);
-  
-  // Check game status after a short delay
-  setInterval(checkGameStatus, 1000);
-
-
-// Function to handle Big Boss transformation
-function transformBigBoss() {
-    if (monsterHealth[MONSTERS.BOSS] / 200 < 0.2) {
-      isBigBossTransformed = true;
-      logAttack(MONSTERS.BOSS, "transforms into a bigger boss.");
-    }
-  }
-  
-  // Use setTimeout for introducing a delay in attacks
-  function delayedBossAttack() {
-    setTimeout(performBossAttack, Math.floor(Math.random() * 3000) + 1000);
-  }
-  
-  // Add custom functionality (for example, Jack's special attack)
-  function performCustomFunctionality(hero) {
-    if (hero === HEROES.LUMBERJACK) {
-      const damage = Math.floor(Math.random() * 51); // Random damage between 0 and 50
-      const randomMonster = getRandomMonster();
-      monsterHealth[randomMonster] -= damage;
-      logAttack(hero, randomMonster, damage);
-    }
-  }
-  
-  // Event listener for the custom functionality
-  const customFunctionalityBtn = document.getElementById("custom-functionality-button");
-  customFunctionalityBtn.addEventListener("click", () => performCustomFunctionality(HEROES.LUMBERJACK));
-  
-  // Check for victory or loss with a custom win condition
-  function checkGameStatus() {
-    if (monsterHealth[MONSTERS.BOSS] <= 0 && !isBigBossTransformed) {
-      document.getElementById("output-div").innerHTML += "<p>You Won!</p>";
-    } else {
-      let isAnyHeroAlive = false;
-      for (const hero in heroHealth) {
-        if (heroHealth[hero] > 0) {
-          isAnyHeroAlive = true;
-          break;
+// Add click event listeners to heroes for attacking
+for (const hero of heroes) {
+    hero.addEventListener("click", () => {
+        if (isSlimeOrBatPresent) {
+            attackSlimeOrBat(hero);
+        } else {
+            attackBigBoss(hero);
+            setTimeout(() => {
+                if (Math.random() <= 0.25) {
+                    showAppearingMonster();
+                }
+                bigBossAttack();
+            }, 1000);
         }
-      }
-      if (!isAnyHeroAlive) {
-        document.getElementById("output-div").innerHTML += "<p>You Lost!</p>";
-      }
+    });
+}
+
+// Add click event listener to William the Healer to heal heroes
+williamTheHealer.addEventListener("click", () => {
+    if (isSlimeOrBatPresent) {
+        const outputDiv = document.getElementById("output-div");
+        outputDiv.innerHTML += `<p class="message">William the Healer can't heal while the Slime or Bat is present!</p>`;
+    } else {
+        healHeroes();
     }
-  }
-  
-  // Event listener for Big Boss transformation
-  transformBigBoss(); // Start checking for transformation
-  setInterval(transformBigBoss, 5000); // Check every 5 seconds
-  
-  // Event listener to introduce a delay in Big Boss and baddies' attacks
-  setInterval(delayedBossAttack, 2000); // Introduce delay every 2 seconds
-  
+});
+
+// Add click event listener to Jack the Lumberjack to provide arrows for Julia
+jackTheLumberjack.addEventListener("click", () => {
+    if (juliaArrows < 10) {
+        juliaArrows += 5; // Jack provides 5 arrows
+        const outputDiv = document.getElementById("output-div");
+        outputDiv.innerHTML += `<p class="message arrow">Jack the Lumberjack provided 5 arrows to Julia. Julia now has ${juliaArrows} arrows.</p>`;
+    }
+});
+
+// Function for Nameless Knight to attack Big Boss
+function attackBigBoss(hero) {
+    if (hero === heroes[0]) {
+        const damage = Math.floor(Math.random() * 30) + 10;
+        bigBossHP -= damage;
+        if (bigBossHP < 0) {
+            bigBossHP = 0;
+        }
+        bigBossHPDiv.style.width = bigBossHP + "%";
+        const outputDiv = document.getElementById("output-div");
+        outputDiv.innerHTML += `<p class="message attack">${hero.id} attacked Big Boss for ${damage} damage!</p>`;
+        if (bigBossHP === 0) {
+            outputDiv.innerHTML += `<p class="message attack">${hero.id} defeated Big Boss!</p>`;
+        }
+    } else {
+        const outputDiv = document.getElementById("output-div");
+        outputDiv.innerHTML += `<p class="message">${hero.id} can't attack Big Boss!</p>`;
+    }
+    updateLifeBars();
+}
+
+// Function for Julia the Archer to attack Bat
+function attackBat(hero) {
+    if (hero === heroes[2]) {
+        const damage = Math.floor(Math.random() * 20) + 5;
+        appearingMonsterHP -= damage;
+        if (appearingMonsterHP < 0) {
+            appearingMonsterHP = 0;
+        }
+        appearingMonsterHPDiv.style.width = appearingMonsterHP + "%";
+        const outputDiv = document.getElementById("output-div");
+        outputDiv.innerHTML += `<p class="message attack">${hero.id} attacked the Bat for ${damage} damage!</p>`;
+        if (appearingMonsterHP === 0) {
+            outputDiv.innerHTML += `<p class="message attack">${hero.id} defeated the Bat!</p>`;
+            isSlimeOrBatPresent = false;
+            appearingMonster.src = "";
+        }
+    } else {
+        const outputDiv = document.getElementById("output-div");
+        outputDiv.innerHTML += `<p class="message">${hero.id} can't attack the Bat!</p>`;
+    }
+    updateLifeBars();
+}
+
+// Function for The Cat to attack Slime
+function attackSlime(hero) {
+    if (hero === heroes[1]) {
+        const damage = Math.floor(Math.random() * 20) + 5;
+        appearingMonsterHP -= damage;
+        if (appearingMonsterHP < 0) {
+            appearingMonsterHP = 0;
+        }
+        appearingMonsterHPDiv.style.width = appearingMonsterHP + "%";
+        const outputDiv = document.getElementById("output-div");
+        outputDiv.innerHTML += `<p class="message attack">${hero.id} attacked the Slime for ${damage} damage!</p>`;
+        if (appearingMonsterHP === 0) {
+            outputDiv.innerHTML += `<p class="message attack">${hero.id} defeated the Slime!</p>`;
+            isSlimeOrBatPresent = false;
+            appearingMonster.src = "";
+        }
+    } else {
+        const outputDiv = document.getElementById("output-div");
+        outputDiv.innerHTML += `<p class="message">${hero.id} can't attack the Slime!</p>`;
+    }
+    updateLifeBars();
+}
+
+// Function for Big Boss to make a random attack on a hero
+function bigBossAttack() {
+    if (bigBossHP > 0) {
+        const randomHero = heroes[Math.floor(Math.random() * heroes.length)];
+        const heroDamage = Math.floor(Math.random() * 30) + 10;
+
+        if (randomHero === heroes[0]) {
+            namelessKnightHP -= heroDamage;
+            namelessKnightHPDiv.style.width = namelessKnightHP + "%";
+        } else if (randomHero === heroes[1]) {
+            theCatHP -= heroDamage;
+            theCatHPDiv.style.width = theCatHP + "%";
+        } else {
+            juliaTheArcherHP -= heroDamage;
+            juliaTheArcherHPDiv.style.width = juliaTheArcherHP + "%";
+        }
+
+        const outputDiv = document.getElementById("output-div");
+        outputDiv.innerHTML += `<p class="message attack">Big Boss attacked ${randomHero.id}, and ${randomHero.id} lost ${heroDamage}hp!</p>`;
+
+        if (namelessKnightHP <= 0 || theCatHP <= 0 || juliaTheArcherHP <= 0) {
+            outputDiv.innerHTML += `<p class="message attack">Big Boss defeated ${randomHero.id}!</p>`;
+        }
+    }
+    updateLifeBars();
+}
+
+// Function to show a Slime or Bat with 25% probability
+function showAppearingMonster() {
+    if (Math.random() <= 0.25) {
+        isSlimeOrBatPresent = true;
+        const randomMonster = Math.random() <= 0.5 ? "slime.png" : "bat.png";
+        appearingMonster.src = randomMonster;
+        appearingMonster.alt = randomMonster === "slime.png" ? "Slime" : "Bat";
+        appearingMonsterHP = 50;
+        appearingMonsterHPDiv.style.width = appearingMonsterHP + "%";
+    }
+}
+
+// Function to update life bars
+function updateLifeBars() {
+    namelessKnightHPDiv.style.width = namelessKnightHP + "%";
+    theCatHPDiv.style.width = theCatHP + "%";
+    juliaTheArcherHPDiv.style.width = juliaTheArcherHP + "%";
+    bigBossHPDiv.style.width = bigBossHP + "%";
+}
+
+// Function to simulate healing by William the Healer
+function healHeroes() {
+    const outputDiv = document.getElementById("output-div");
+    let healed = false;
+
+    for (const hero of heroes) {
+        if (Math.random() <= 0.5) { // 50% chance of healing each hero
+            const healAmount = Math.floor(Math.random() * 20) + 10;
+            if (hero === heroes[0]) {
+                namelessKnightHP += healAmount;
+                if (namelessKnightHP > 100) {
+                    namelessKnightHP = 100;
+                }
+                namelessKnightHPDiv.style.width = namelessKnightHP + "%";
+                outputDiv.innerHTML += `<p class="message heal">William the Healer healed ${hero.id} for ${healAmount}hp!</p>`;
+                healed = true;
+            } else if (hero === heroes[1]) {
+                theCatHP += healAmount;
+                if (theCatHP > 100) {
+                    theCatHP = 100;
+                }
+                theCatHPDiv.style.width = theCatHP + "%";
+                outputDiv.innerHTML += `<p class="message heal">William the Healer healed ${hero.id} for ${healAmount}hp!</p>`;
+                healed = true;
+            } else if (hero === heroes[2]) {
+                juliaTheArcherHP += healAmount;
+                if (juliaTheArcherHP > 100) {
+                    juliaTheArcherHP = 100;
+                }
+                juliaTheArcherHPDiv.style.width = juliaTheArcherHP + "%";
+                outputDiv.innerHTML += `<p class="message heal">William the Healer healed ${hero.id} for ${healAmount}hp!</p>`;
+                healed = true;
+            }
+        }
+    }
+
+    if (!healed) {
+        outputDiv.innerHTML += `<p class="message">William the Healer couldn't heal any heroes this time.</p>`;
+    }
+}
+
+// Function to check and update Big Boss's state
+function checkBigBossState() {
+    if (bigBossHP < 20) {
+        // Big Boss becomes bigger and takes 10% less damage
+        bigBossSizeMultiplier = 1.2;
+        bigBossTakesLessDamage = true;
+    }
+}
+
+// Function to display victory message
+function displayVictory() {
+    const outputDiv = document.getElementById("output-div");
+    outputDiv.innerHTML += `<p class="message victory">You won!</p>`;
+}
+
+// Function to display loss message
+function displayLoss() {
+    const outputDiv = document.getElementById("output-div");
+    outputDiv.innerHTML += `<p class="message loss">You lost!</p>`;
+}
+
+// Custom Functionality: Display a welcome message with a delay
+setTimeout(() => {
+    const outputDiv = document.getElementById("output-div");
+    outputDiv.innerHTML += `<p class="message">Welcome to the AdventureLand - Final Boss Battle!</p>`;
+}, 2000); // Display the welcome message after a 2-second delay
+
+// Function to delay Big Boss's attack by 1-3 seconds
+function delayBigBossAttack() {
+    setTimeout(() => {
+        if (bigBossHP > 0) {
+            const randomHero = heroes[Math.floor(Math.random() * heroes.length)];
+            const heroDamage = Math.floor(Math.random() * 30) + 10;
+
+            if (randomHero === heroes[0]) {
+                namelessKnightHP -= heroDamage;
+                namelessKnightHPDiv.style.width = namelessKnightHP + "%";
+            } else if (randomHero === heroes[1]) {
+                theCatHP -= heroDamage;
+                theCatHPDiv.style.width = theCatHP + "%";
+            } else {
+                juliaTheArcherHP -= heroDamage;
+                juliaTheArcherHPDiv.style.width = juliaTheArcherHP + "%";
+            }
+
+            const outputDiv = document.getElementById("output-div");
+            outputDiv.innerHTML += `<p class="message attack">Big Boss attacked ${randomHero.id}, and ${randomHero.id} lost ${heroDamage}hp!</p>`;
+
+            if (namelessKnightHP <= 0 || theCatHP <= 0 || juliaTheArcherHP <= 0) {
+                outputDiv.innerHTML += `<p class="message attack">Big Boss defeated ${randomHero.id}!</p>`;
+            }
+        }
+        updateLifeBars();
+    }, Math.floor(Math.random() * 3000) + 1000); // Delay the attack by 1-3 seconds
+}
+
+// Custom Functionality: Display a cool tip with a delay
+setTimeout(() => {
+    const outputDiv = document.getElementById("output-div");
+    outputDiv.innerHTML += `<p class="message">Cool Tip: Click on William the Healer to heal your heroes when needed!</p>`;
+}, 6000); // Display the cool tip after a 6-second delay
